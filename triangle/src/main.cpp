@@ -165,7 +165,7 @@ int create_vertex_shader()
 	 */
 	int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 	//              шейдер   число строк  исходный код      ????
-	glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
+	glShaderSource(vertex_shader, 1, vertex_shader_source(), NULL);
 	glCompileShader(vertex_shader);
 
 	int success;
@@ -191,7 +191,7 @@ int create_frag_shader()
 	 */
 	int frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
 	//              шейдер   число строк  исходный код      ????
-	glShaderSource(frag_shader, 1, &frag_shader_source, NULL);
+	glShaderSource(frag_shader, 1, frag_shader_source(), NULL);
 	glCompileShader(frag_shader);
 
 	int success;
