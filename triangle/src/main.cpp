@@ -57,14 +57,14 @@ constexpr color_t const PURPLE       = color_t { 0.647, 0.224, 0.780, 1.000 };
 // global variables
 GLFWwindow *window = nullptr;
 int  shader_prog   = 0;
-uint triangle_vbo  = 0;
-uint array_vao     = 0;
+uint vbo           = 0;
+uint vao           = 0;
 
 
 
 
 // function headers
-void exit_with_error(char const *err, int code = -1);
+void exit_with_error(char const *err = nullptr, int code = -1);
 void framebuffer_resized(GLFWwindow *window, int w, int h);
 
 void create_window();
@@ -83,7 +83,8 @@ void exit_with_error(char const *err, int code)
 {
 	// Освобождение всех ресурсов, выделенных glfw
 	glfwTerminate();
-	fprintf(stderr, "%s\n", err);
+	if (err)
+		fprintf(stderr, "%s\n", err);
 	exit(code);
 }
 
@@ -120,7 +121,7 @@ void create_window()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Пользователь не сможет изменить размер окна
-	// glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	// Собственно, создаём окно
 	window = glfwCreateWindow(
@@ -176,7 +177,7 @@ int create_vertex_shader()
 	{
 		glGetShaderInfoLog(vertex_shader, INFO_BUFFER_SIZE, NULL, info);
 		fprintf(stderr, "ERROR: VERTEX SHADER COMPILATION FAILED\n%s", info);
-		exit(1);
+		exit_with_error();
 	}
 
 	return vertex_shader;
@@ -202,7 +203,7 @@ int create_frag_shader()
 	{
 		glGetShaderInfoLog(frag_shader, INFO_BUFFER_SIZE, NULL, info);
 		fprintf(stderr, "ERROR: FRAG SHADER COMPILATION FAILED\n%s", info);
-		exit(1);
+		exit_with_error();
 	}
 
 	return frag_shader;
@@ -241,7 +242,7 @@ void init_shaders()
 	{
 		glGetProgramInfoLog(shader_prog, INFO_BUFFER_SIZE, NULL, info);
 		fprintf(stderr, "ERROR (%i): SHADER PROGRAMM CREATION FAILED\n%s", success, info);
-		exit(-1);
+		exit_with_error();
 	}
 }
 
@@ -264,15 +265,15 @@ void init_triangle()
 	 * GL_ARRAY_BUFFER и, наконец, копирование
 	 * созданных вершин в память буфера.
 	 */
-	glGenBuffers(1, &triangle_vbo);
+	glGenBuffers(1, &vbo);
 
 	/*
 	 * После следующей привязки любые инструкции,
 	 * обращённые к GL_ARRAY_BUFFER, будут использоваться
 	 * для конфигурирования текущего привязанного
-	 * буфера, в данном случае — triangle_vbo
+	 * буфера, в данном случае — vbo
 	 */
-	glBindBuffer(GL_ARRAY_BUFFER, triangle_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	/*
 	 * Способов использования данных в glBufferData
@@ -288,14 +289,8 @@ void init_triangle()
 	 * 3. GL_DYNAMIC_DRAW — данные часто изменяются и
 	 *    используются много раз.
 	 */
-	//             тип буфера      размер данных     данные   способ использования
+	//               буфер         размер данных     данные   способ использования
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-}
-
-void init_graphics()
-{
-	init_shaders();
-	init_triangle();
 
 	/*
 	 * Указываем, как воспринимать объекты,
@@ -320,7 +315,17 @@ void init_graphics()
 	 */
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0); // ??
+	glBindBuffer(GL_ARRAY_BUFFER, 0); // Отмена связывания буфера
+}
+
+void init_graphics()
+{
+	init_shaders();
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	init_triangle();
 }
 
 
@@ -396,9 +401,13 @@ void main_loop()
 		/*
 		 * Отрисовываем треугольник
 		 */
-		// glUseProgram(shader_prog);
-		// glBindVertexArray()
-		// glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUseProgram(shader_prog);
+		glBindVertexArray(vao);
+		glDrawArrays(
+			GL_TRIANGLES, // стиль отрисовки
+			0,            // начальный индекс вершинного массива
+			3             // количество вершин
+		);
 
 		/*
 		 * Заменяет буффер, который используется для отрисовки и
