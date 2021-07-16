@@ -233,16 +233,16 @@ void init_shaders()
 	glDeleteShader(vertex_shader);
 	glDeleteShader(frag_shader);
 
-	// int success;
-	// char info[INFO_BUFFER_SIZE];
-	// glGetProgramiv(frag_shader, GL_COMPILE_STATUS, &success);
+	int success;
+	char info[INFO_BUFFER_SIZE];
+	glGetProgramiv(shader_prog, GL_LINK_STATUS, &success);
 
-	// if (!success)
-	// {
-		// glGetProgramInfoLog(frag_shader, INFO_BUFFER_SIZE, NULL, info);
-		// fprintf(stderr, "ERROR (%i): SHADER PROGRAMM CREATION FAILED\n%s", success, info);
-		// exit(-1);
-	// }
+	if (!success)
+	{
+		glGetProgramInfoLog(shader_prog, INFO_BUFFER_SIZE, NULL, info);
+		fprintf(stderr, "ERROR (%i): SHADER PROGRAMM CREATION FAILED\n%s", success, info);
+		exit(-1);
+	}
 }
 
 void init_triangle()
@@ -260,26 +260,34 @@ void init_triangle()
 
 	/*
 	 * Создание буфера с помощью glGenBuffers,
-	 * привязка его к вершинного буфера
+	 * привязка его к вершинному буферу
 	 * GL_ARRAY_BUFFER и, наконец, копирование
 	 * созданных вершин в память буфера.
-	 *
+	 */
+	glGenBuffers(1, &triangle_vbo);
+
+	/*
+	 * После следующей привязки любые инструкции,
+	 * обращённые к GL_ARRAY_BUFFER, будут использоваться
+	 * для конфигурирования текущего привязанного
+	 * буфера, в данном случае — triangle_vbo
+	 */
+	glBindBuffer(GL_ARRAY_BUFFER, triangle_vbo);
+
+	/*
 	 * Способов использования данных в glBufferData
 	 * всего три штуки:
-	 *
+	 * 
 	 * 1. GL_STREAM_DRAW — данные указываются только
 	 *    один раз и используются графическим
 	 *    процессором не более нескольких раз.
-	 *
+	 * 
 	 * 2. GL_STATIC_DRAW — данные указываются только
 	 *    один раз и используются много раз.
-	 *
+	 * 
 	 * 3. GL_DYNAMIC_DRAW — данные часто изменяются и
 	 *    используются много раз.
 	 */
-	glGenBuffers(1, &triangle_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, triangle_vbo);
-
 	//             тип буфера      размер данных     данные   способ использования
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 }
