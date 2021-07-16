@@ -57,8 +57,12 @@ constexpr color_t const PURPLE       = color_t { 0.647, 0.224, 0.780, 1.000 };
 // global variables
 GLFWwindow *window = nullptr;
 int  shader_prog   = 0;
-uint vbo           = 0;
-uint vao           = 0;
+uint vbo_triangle  = 0;
+uint vbo_rectangle = 0;
+uint vao_triangle  = 0;
+uint vao_rectangle = 0;
+uint ebo_rectangle = 0;
+char drawn_shape   = 't'; // 't' - triangle, 'r' - rectangle
 
 
 
@@ -265,15 +269,15 @@ void init_triangle()
 	 * GL_ARRAY_BUFFER и, наконец, копирование
 	 * созданных вершин в память буфера.
 	 */
-	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &vbo_triangle);
 
 	/*
 	 * После следующей привязки любые инструкции,
 	 * обращённые к GL_ARRAY_BUFFER, будут использоваться
 	 * для конфигурирования текущего привязанного
-	 * буфера, в данном случае — vbo
+	 * буфера, в данном случае — vbo_triangle
 	 */
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_triangle);
 
 	/*
 	 * Способов использования данных в glBufferData
@@ -302,11 +306,11 @@ void init_triangle()
 	 */
 	glVertexAttribPointer(
 		0,                 // location для объекта (см. вершинный шейдер)
-		3,                 // количество элементов в объекте
+		3,                 // количество элементов в объекте (в точке три координаты)
 		GL_FLOAT,          // тип элементов объекта
 		GL_FALSE,          // требуется ли нормализация
-		3 * sizeof(float), // расстояние между объектами
-		nullptr            // 
+		3 * sizeof(float), // расстояние между объектами (векторами)
+		0                  // смещение в массиве (в байтах)
 	);
 
 	/*
@@ -318,14 +322,56 @@ void init_triangle()
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // Отмена связывания буфера
 }
 
+void init_rectangle()
+{
+	static constexpr float const vertices[] = {
+		0.5f,  0.5f,  0.0f, // верхняя правая
+		0.5f,  -0.5f, 0.0f, // нижняя правая
+		-0.5f, -0.5f, 0.0f, // нижняя левая
+		-0.5f, 0.5f,  0.0f  // верхняя левая
+	};
+
+	static constexpr uint indices[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
+
+
+	// буфер вершин
+	glGenBuffers(1, &vbo_rectangle);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_rectangle);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(
+		0, 3, GL_FLOAT, GL_FALSE,
+		3 * sizeof(float), 0 );
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	// буфер индексов
+	glGenBuffers(1, &ebo_rectangle);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_rectangle);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 void init_graphics()
 {
 	init_shaders();
 
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
+	// triangle
+	glGenVertexArrays(1, &vao_triangle);
+	glBindVertexArray(vao_triangle);
 	init_triangle();
+	glBindVertexArray(0);
+
+	// rectangle
+	glGenVertexArrays(1, &vao_rectangle);
+	glBindVertexArray(vao_rectangle);
+	init_rectangle();
+	glBindVertexArray(0);
 }
 
 
@@ -347,17 +393,44 @@ void handle_input(GLFWwindow *win)
 		glfwSetWindowShouldClose(win, true);
 
 	if (glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS)
-		printf("Key P pressed (%i)\n", key_p_counter++),
+	{
+		printf("Key P pressed (%i)\n", key_p_counter++);
 		fflush(stdout);
+	}
+
+	if ( glfwGetKey(win, GLFW_KEY_T) == GLFW_PRESS && (
+		 glfwGetKey(win, GLFW_KEY_LEFT_SHIFT)  == GLFW_PRESS ||
+		 glfwGetKey(win, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS ) )
+	{
+		drawn_shape = 't';
+		glBindVertexArray(vao_triangle);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
 
 	if (glfwGetKey(win, GLFW_KEY_R) == GLFW_PRESS)
-		glClearColor(DDARK_RED.r, DDARK_RED.g, DDARK_RED.b, DDARK_RED.a);
+	{
+		if ( glfwGetKey(win, GLFW_KEY_LEFT_SHIFT)  == GLFW_PRESS ||
+			 glfwGetKey(win, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS )
+		{
+			drawn_shape = 'r';
+			glBindVertexArray(vao_rectangle);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_rectangle);
+		}
+		else
+			glClearColor(DDARK_RED.r, DDARK_RED.g, DDARK_RED.b, DDARK_RED.a);
+	}
 
 	if (glfwGetKey(win, GLFW_KEY_G) == GLFW_PRESS)
 		glClearColor(DDARK_GREEN.r, DDARK_GREEN.g, DDARK_GREEN.b, DDARK_GREEN.a);
 
 	if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS)
 		glClearColor(DDARK_BLUE.r, DDARK_BLUE.g, DDARK_BLUE.b, DDARK_BLUE.a);
+
+	if (glfwGetKey(win, GLFW_KEY_F) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	if (glfwGetKey(win, GLFW_KEY_L) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 
@@ -372,6 +445,8 @@ void main_loop()
 	 * будет очищаться окно
 	 */
 	glClearColor(DDARK_BLUE.r, DDARK_BLUE.g, DDARK_BLUE.b, DDARK_BLUE.a);
+	glBindVertexArray(vao_triangle);
+	drawn_shape = 't';
 
 	/*
 	 * glfwWindowShouldClose проверяет,
@@ -399,15 +474,32 @@ void main_loop()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		/*
-		 * Отрисовываем треугольник
+		 * Отрисовываем треугольник или четырёхугольник
 		 */
 		glUseProgram(shader_prog);
-		glBindVertexArray(vao);
-		glDrawArrays(
-			GL_TRIANGLES, // стиль отрисовки
-			0,            // начальный индекс вершинного массива
-			3             // количество вершин
-		);
+		switch (drawn_shape)
+		{
+		case 't':
+			glDrawArrays(
+				GL_TRIANGLES, // стиль отрисовки
+				0,            // начальный индекс вершинного массива
+				3             // количество вершин
+			);
+			break;
+
+		case 'r':
+			glDrawElements(
+				GL_TRIANGLES,    // стить отрисовки
+				6,               // количество вершин
+				GL_UNSIGNED_INT, // тип индексов
+				0                // смещение в массиве либо сам массив
+								 // в последнем случае EBO не используется
+			);
+			break;
+
+		default:
+			exit_with_error("Unknown drawn_shape");
+		}
 
 		/*
 		 * Заменяет буффер, который используется для отрисовки и
