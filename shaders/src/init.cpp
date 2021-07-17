@@ -70,10 +70,22 @@ void init_shaders()
 
 void init_triangles()
 {
+	/*
+	 * Узнать максимальное число вершинных атрибутов
+	 * (тех переменных, которые объявляются в vertex.glsl
+	 * с меткой location ... in
+	 */
+	int n;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
+	printf("Max vertex attribs: %i\n", n);
+
 	static constexpr float const vertices[] = {
 		-0.5f, -0.5f, 0.0f,
 		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
+		 0.0f,  0.5f, 0.0f,
+	    -0.9f, -0.9f, 0.0f,
+		-0.8f, -0.9f, 0.0f,
+		-0.9f, -0.8f, 0.0f
 	};
 
 	glGenVertexArrays(1, &g_vao_triangles);

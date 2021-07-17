@@ -13,7 +13,7 @@
 /************************** OBJECTS *************************/
 // core
 constexpr int  const  WINDOW_WIDTH     = 800;
-constexpr int  const  WINDOW_HEIGHT    = 600;
+constexpr int  const  WINDOW_HEIGHT    = 800;
 constexpr char const *WINDOW_TITLE     = "Sahders";
 constexpr int  const  INFO_BUFFER_SIZE = 1024;
 
