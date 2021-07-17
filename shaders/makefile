@@ -10,7 +10,7 @@ libs    := -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 build: main
 
 run: main
-	main 
+	main
 
 
 re: clean build
@@ -19,7 +19,7 @@ rerun: clean run
 
 
 source_dirs     := src
-header_dirs     := src/lib
+header_dirs     := src/lib src/
 search_wildcard := $(wildcard $(addsuffix /*.cpp,$(source_dirs)))
 object_files    := $(patsubst %.cpp,%.o,$(search_wildcard))
 object_files    := $(notdir $(object_files))
