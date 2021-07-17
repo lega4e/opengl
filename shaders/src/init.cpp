@@ -6,9 +6,12 @@
 
 
 
+uint g_vbo_triangles;
+uint g_vao_triangles;
+
 GLFWwindow *create_window();
 void       init_shaders();
-void       init_triangle();
+void       init_triangles();
 
 
 
@@ -31,6 +34,8 @@ void init_application()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		exit_with_error("Error: failed to initialize GLAD\n");
 
+	init_shaders();
+	init_triangles();
 }
 
 
@@ -52,6 +57,37 @@ GLFWwindow *create_window()
 	return window;
 }
 
+
+void init_shaders()
+{
+	int vertex_shader = create_shader(GL_VERTEX_SHADER,   "shader/vertex.glsl");
+	int frag_shader   = create_shader(GL_FRAGMENT_SHADER, "shader/frag.glsl");
+
+	g_shader_program  = create_shader_program(vertex_shader, frag_shader);
+	glDeleteShader(vertex_shader);
+	glDeleteShader(frag_shader);
+}
+
+void init_triangles()
+{
+	static constexpr float const vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0f,
+		 0.0f,  0.5f, 0.0f
+	};
+
+	glGenVertexArrays(1, &g_vao_triangles);
+	glBindVertexArray(g_vao_triangles);
+
+	glGenBuffers(1, &g_vbo_triangles);
+	glBindBuffer(GL_ARRAY_BUFFER, g_vbo_triangles);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+}
 
 
 void free_application()

@@ -4,17 +4,24 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <string>
+
 
 
 
 
 /************************** OBJECTS *************************/
 // core
-constexpr int  const  WINDOW_WIDTH  = 800;
-constexpr int  const  WINDOW_HEIGHT = 600;
-constexpr char const *WINDOW_TITLE  = "Sahders";
+constexpr int  const  WINDOW_WIDTH     = 800;
+constexpr int  const  WINDOW_HEIGHT    = 600;
+constexpr char const *WINDOW_TITLE     = "Sahders";
+constexpr int  const  INFO_BUFFER_SIZE = 1024;
 
 extern GLFWwindow *g_window;
+extern int         g_shader_program;
+
+extern uint g_vbo_triangles;
+extern uint g_vao_triangles;
 
 
 // colors
@@ -63,6 +70,10 @@ void main_loop();
 
 void exit_with_error(int code, char const *fmt = nullptr, ...);
 void exit_with_error(char const *fmt = nullptr, ...);
+
+std::string read_file(char const *filename);
+int create_shader(int type, char const *filename);
+int create_shader_program(int vertex_shader, int frag_shader);
 
 
 
