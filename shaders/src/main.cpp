@@ -8,9 +8,16 @@
 
 int main( int argc, char *argv[] )
 {
-	init_application();
-	main_loop();
-	free_application();
+	try
+	{
+		init_application();
+		main_loop();
+		free_application();
+	}
+	catch(std::string const &e)
+	{
+		fprintf(stderr, "%s\n", e.c_str());
+	}
 	return 0;
 }
 

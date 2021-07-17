@@ -11,7 +11,9 @@ void main_loop()
 	glClearColor(EXTRC(DARK_BLUE));
 	glBindVertexArray(g_vao_triangles);
 
-	int out_color_location = glGetUniformLocation(g_shader_program, "out_color");
+	int out_color_location = g_shader.location("out_color");
+	g_shader.use();
+	g_shader.uniform("bottom_color", EXTRC(LIGHT_RED));
 
 	while (!glfwWindowShouldClose(g_window))
 	{
@@ -21,12 +23,9 @@ void main_loop()
 		float time = glfwGetTime();
 		float color = sin(time) / 2.0f + 0.5f;
 
-
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(g_shader_program);
-		// f,i,ui,3f
-		glUniform4f(out_color_location, 0.0f, color, 0.0f, 1.0f);
+		g_shader.uniform(out_color_location, 0.0f, color, 0.0f, 1.0f);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawArrays(GL_TRIANGLES, 3, 3);
 

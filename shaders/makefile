@@ -18,7 +18,7 @@ re: clean build
 rerun: clean run
 
 
-source_dirs     := src
+source_dirs     := src src/lib/nvx/opengl/code
 header_dirs     := src/lib src/
 search_wildcard := $(wildcard $(addsuffix /*.cpp,$(source_dirs)))
 object_files    := $(patsubst %.cpp,%.o,$(search_wildcard))

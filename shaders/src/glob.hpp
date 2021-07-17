@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include <nvx/opengl/Shader.hpp>
+
 
 
 
@@ -18,7 +20,7 @@ constexpr char const *WINDOW_TITLE     = "Sahders";
 constexpr int  const  INFO_BUFFER_SIZE = 1024;
 
 extern GLFWwindow *g_window;
-extern int         g_shader_program;
+extern nvx::Shader g_shader;
 
 extern uint g_vbo_triangles;
 extern uint g_vao_triangles;
@@ -70,10 +72,6 @@ void main_loop();
 
 void exit_with_error(int code, char const *fmt = nullptr, ...);
 void exit_with_error(char const *fmt = nullptr, ...);
-
-std::string read_file(char const *filename);
-int create_shader(int type, char const *filename);
-int create_shader_program(int vertex_shader, int frag_shader);
 
 
 
