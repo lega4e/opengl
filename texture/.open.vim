@@ -1,4 +1,4 @@
-e src/main.cpp
+e makefile
 
 tabnew src/main.cpp
 vnew src/init.cpp

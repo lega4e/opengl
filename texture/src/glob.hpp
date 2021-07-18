@@ -14,16 +14,18 @@
 
 /************************** OBJECTS *************************/
 // core
-constexpr int  const  WINDOW_WIDTH     = 800;
-constexpr int  const  WINDOW_HEIGHT    = 800;
+constexpr int  const  WINDOW_WIDTH     = 1000;
+constexpr int  const  WINDOW_HEIGHT    = 1000;
 constexpr char const *WINDOW_TITLE     = "Sahders";
 constexpr int  const  INFO_BUFFER_SIZE = 1024;
 
 extern GLFWwindow *g_window;
 extern nvx::Shader g_shader;
 
-extern uint g_vbo_triangles;
-extern uint g_vao_triangles;
+extern uint g_vbo_rectangle;
+extern uint g_vao_rectangle;
+extern uint g_ebo_rectangle;
+extern uint g_texture;
 
 
 // colors
