@@ -10,12 +10,19 @@ void main_loop()
 {
 	glClearColor(EXTRC(DARK_BLUE));
 	glBindVertexArray(g_vao_rectangle);
+
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_texture);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, g_texture2);
 
 	int out_color_location = g_shader.location("out_color");
 	g_shader.use();
 	g_shader.uniform("bottom_color", EXTRC(LIGHT_RED));
-	g_shader.uniform("mode", 0);
+	g_shader.uniform("mode",         0);
+	g_shader.uniform("tex",          (int)0);
+	g_shader.uniform("tex2",         (int)1);
 
 	while (!glfwWindowShouldClose(g_window))
 	{

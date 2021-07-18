@@ -26,6 +26,7 @@ extern uint g_vbo_rectangle;
 extern uint g_vao_rectangle;
 extern uint g_ebo_rectangle;
 extern uint g_texture;
+extern uint g_texture2;
 
 
 // colors

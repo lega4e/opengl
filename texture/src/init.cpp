@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stb_image.h>
 
+#include <nvx/opengl/common.hpp>
 #include <nvx/opengl/Shader.hpp>
 
 
@@ -15,6 +16,7 @@ uint g_vbo_rectangle;
 uint g_vao_rectangle;
 uint g_ebo_rectangle;
 uint g_texture;
+uint g_texture2;
 
 nvx::Shader g_shader;
 
@@ -45,8 +47,9 @@ void init_application()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		exit_with_error("Error: failed to initialize GLAD\n");
 
-	g_shader = nvx::Shader("shader/vertex.glsl", "shader/frag.glsl");
-	init_texture();
+	g_shader   = nvx::Shader("shader/vertex.glsl", "shader/frag.glsl");
+	g_texture  = nvx::load_texture("tex/wooden_container.jpg", GL_RGB, GL_RGB);
+	g_texture2 = nvx::load_texture("tex/awesomeface_x.png", GL_RGBA, GL_RGBA, true);
 	init_rectangle();
 }
 
@@ -70,33 +73,6 @@ GLFWwindow *create_window()
 }
 
 
-void init_texture()
-{
-	int width, height, channelsc;
-	unsigned char *data = stbi_load(
-		"tex/wooden_container.jpg",
-		&width, &height, &channelsc, 0);
-
-	if (!data)
-	{
-		stbi_image_free(data);
-		exit_with_error("Can't load texture 'wooden_container.jpg'\n");
-	}
-
-	glGenTextures(1, &g_texture);
-	glBindTexture(GL_TEXTURE_2D, g_texture);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0, GL_RGB, width, height, 0,
-		GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	stbi_image_free(data);
-}
-
 void init_rectangle()
 {
 	/*
@@ -110,10 +86,10 @@ void init_rectangle()
 
 	static constexpr float const vertices[] = {
 		 // координаты        // цвета            // текстурные координаты
-		 0.7f,  0.7f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // верхняя правая
-		 0.7f, -0.7f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // нижняя правая
+		 0.7f,  0.7f, 0.0f,   1.0f, 0.0f, 0.0f,   3.0f, 3.0f,   // верхняя правая
+		 0.7f, -0.7f, 0.0f,   0.0f, 1.0f, 0.0f,   3.0f, 0.0f,   // нижняя правая
 		-0.7f, -0.7f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // нижняя левая
-		-0.7f,  0.7f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // верхняя левая 
+		-0.7f,  0.7f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 3.0f    // верхняя левая 
 	};
 
 	static constexpr int const indices[] = {

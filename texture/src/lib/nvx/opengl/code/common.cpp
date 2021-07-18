@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <stb_image.h>
+
 #include <fstream>
 #include <string>
 
@@ -73,6 +75,38 @@ int create_shader_program(int vertex_shader, int frag_shader)
 	}
 
 	return prog;
+}
+
+unsigned int load_texture(char const *filename, int savetype, int intype, bool flip)
+{
+	stbi_set_flip_vertically_on_load(flip);
+	int width, height, channelsc;
+	unsigned char *data = stbi_load(filename,
+		&width, &height, &channelsc, 0);
+	printf("(%s) Channels number: %i\n", filename, channelsc);
+
+	if (!data)
+	{
+		stbi_image_free(data);
+		throw std::string("Can't load texture '") + filename + "'";
+	}
+
+	uint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0, savetype, width, height, 0,
+		intype, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(data);
+
+	return texture;
 }
 
 
