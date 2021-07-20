@@ -70,7 +70,6 @@ constexpr color_t const PURPLE       = color_t { 0.647, 0.224, 0.780, 1.000 };
 void init_application();
 void free_application();
 
-void handle_input();
 void main_loop();
 
 void exit_with_error(int code, char const *fmt = nullptr, ...);

@@ -8,13 +8,15 @@ out vec3 vertex_color;
 out vec2 frag_position;
 out vec2 tex_coord;
 
+uniform mat4 trans;
+
 
 
 
 
 void main()
 {
-	gl_Position   = vec4(pos, 1.0);
+	gl_Position   = trans * vec4(pos, 1.0);
 	vertex_color  = color;
 	frag_position = pos.xy;
 	tex_coord     = tex;

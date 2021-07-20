@@ -39,6 +39,8 @@ public:
 	Shader const &uniform(int location, float x, float y, float z) const;
 	Shader const &uniform(int location, float x, float y, float z, float w) const;
 
+	// Shader const &uniform(int location, float x, float y, float z, float w) const;
+
 	template<typename...Args>
 	inline Shader const &uniform(char const *name, Args...args)
 	{
